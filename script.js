@@ -63,7 +63,7 @@ document.getElementById('login-form').addEventListener('submit', (e) => {
         document.getElementById('main-dashboard').classList.remove('hidden');
         renderIssues();
     } else {
-        alert("ভুল পাসওয়ার্ড বা ইউজারনেম!");
+        alert("ভুল পাসওয়ার্ড বা ইউজারনেম!");
     }
 });
 
@@ -86,31 +86,36 @@ function renderIssues(status = 'all', searchStr = '') {
 
         document.getElementById('total-count').innerText = `${filtered.length} Issues`;
 
-        filtered.forEach(issue => {
-            const topBorder = issue.status === 'open' ? 'border-emerald-500' : 'border-purple-500';
-            const labelHtml = issue.labels.map(l => `<span class="bg-gray-100 text-[9px] px-1.5 py-0.5 rounded border border-gray-200 mr-1 uppercase font-bold text-gray-500">${l}</span>`).join('');
-            
-            const card = document.createElement('div');
-            card.className = `bg-white border-t-4 ${topBorder} rounded-lg shadow-sm p-5 flex flex-col justify-between hover:shadow-md transition cursor-pointer`;
-            card.onclick = () => openModal(issue.id);
-            
-            card.innerHTML = `
-                <div>
-                    <div class="flex justify-between items-start mb-3">
-                        <i class="fa-solid fa-circle-dot ${issue.status === 'open' ? 'text-emerald-500' : 'text-purple-500'} text-xs"></i>
-                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">${issue.priority}</span>
-                    </div>
-                    <h3 class="font-bold text-gray-800 text-sm mb-1 leading-snug h-10 overflow-hidden">${issue.title}</h3>
-                    <p class="text-[11px] text-gray-500 line-clamp-2 mb-4 h-8">${issue.description}</p>
-                    <div class="flex flex-wrap gap-y-1">${labelHtml}</div>
+      // renderIssues ফাংশনের ভেতরে এই অংশটি পরিবর্তন করুন
+filtered.forEach(issue => {
+    const topBorder = issue.status === 'open' ? 'border-[#10B981]' : 'border-[#8B5CF6]';
+    
+    // পাথ হিসেবে 'assets/' যোগ করা হয়েছে
+    // আপনার ফাইল নেম অনুযায়ী স্পেসসহ পাথ দেওয়া হলো:
+    const statusIcon = issue.status === 'open' ? 'assets/Open-Status.png' : 'assets/Closed-Status.png';
+    
+    const card = document.createElement('div');
+    card.className = `bg-white border-t-4 ${topBorder} rounded-2xl shadow-sm p-6 flex flex-col justify-between hover:shadow-xl transition-all duration-300 cursor-pointer`;
+    card.onclick = () => openModal(issue.id);
+    
+    card.innerHTML = `
+        <div>
+            <div class="flex justify-between items-center mb-4">
+                <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center border border-gray-100">
+                    <img src="${statusIcon}" alt="${issue.status}" class="w-4 h-4 object-contain" onerror="this.src='https://via.placeholder.com/16'">
                 </div>
-                <div class="mt-4 pt-3 border-t border-gray-50 flex justify-between items-center text-[10px] text-gray-400">
-                    <span>#${issue.id} by <b>${issue.author}</b></span>
-                    <span>${new Date(issue.createdAt).toLocaleDateString()}</span>
-                </div>
-            `;
-            grid.appendChild(card);
-        });
+                <span class="bg-gray-100 text-gray-500 text-[9px] px-2.5 py-1 rounded-md font-black uppercase tracking-widest border border-gray-200">${issue.priority}</span>
+            </div>
+            <h3 class="font-bold text-[#111827] text-[15px] mb-2 line-clamp-2">${issue.title}</h3>
+            <p class="text-xs text-gray-500 line-clamp-2 mb-5">${issue.description}</p>
+        </div>
+        <div class="mt-6 pt-4 border-t border-gray-50 flex justify-between items-center text-[11px] text-gray-400">
+            <span>#${issue.id} by <b class="text-gray-600">${issue.author}</b></span>
+            <span>${new Date(issue.createdAt).toLocaleDateString()}</span>
+        </div>
+    `;
+    grid.appendChild(card);
+});
     }, 600);
 }
 
