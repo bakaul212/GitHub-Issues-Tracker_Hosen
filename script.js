@@ -52,22 +52,42 @@ const issuesData = [
     { "id": 50, "title": "Create automated testing pipeline", "description": "Set up CI/CD pipeline with automated tests running on every commit and pull request.", "status": "open", "labels": ["enhancement", "help wanted"], "priority": "high", "author": "ci_cd_cindy", "assignee": "test_tina", "createdAt": "2024-02-10T08:00:00Z" }
 ];
 
-let activeFilter = 'all';
+let currentFilter = 'all';
 
-// --- Authentication ---
+// --- অগ্রাধিকার (Priority) অনুযায়ী কালার স্টাইল ---
+function getPriorityStyle(priority) {
+    const p = priority.toLowerCase();
+    if (p === 'high') return 'bg-[#FEE2E2] text-[#EF4444] border-[#FECACA]'; // লাল
+    if (p === 'medium') return 'bg-[#FFEDD5] text-[#F97316] border-[#FED7AA]'; // কমলা
+    if (p === 'low') return 'bg-[#F3F4F6] text-[#6B7280] border-[#E5E7EB]'; // ধূসর
+    return 'bg-gray-100 text-gray-500 border-gray-200';
+}
+
+// --- লেবেল (BUG, HELP WANTED) অনুযায়ী কালার স্টাইল ---
+function getLabelStyle(label) {
+    const l = label.toUpperCase();
+    if (l === 'BUG') return 'bg-[#FEE2E2] text-[#E11D48] border-[#FECACA]'; // গাঢ় লাল
+    if (l === 'HELP WANTED') return 'bg-[#FEF3C7] text-[#D97706] border-[#FDE68A]'; // হলুদ
+    if (l === 'ENHANCEMENT') return 'bg-[#ECFDF5] text-[#059669] border-[#A7F3D0]'; // সবুজ
+    return 'bg-gray-50 text-gray-500 border-gray-100';
+}
+
+// --- লগইন হ্যান্ডলার ---
 document.getElementById('login-form').addEventListener('submit', (e) => {
     e.preventDefault();
-    if (document.getElementById('username').value === "admin" && 
-        document.getElementById('password').value === "admin123") {
+    const user = document.getElementById('username').value;
+    const pass = document.getElementById('password').value;
+
+    if (user === "admin" && pass === "admin123") {
         document.getElementById('login-page').classList.add('hidden');
         document.getElementById('main-dashboard').classList.remove('hidden');
         renderIssues();
     } else {
-        alert("ভুল পাসওয়ার্ড বা ইউজারনেম!");
+        alert("Invalid Username or Password!");
     }
 });
 
-// --- Render Cards ---
+// --- ড্যাশবোর্ড রেন্ডারিং ---
 function renderIssues(status = 'all', searchStr = '') {
     const grid = document.getElementById('issues-grid');
     const loader = document.getElementById('loader');
@@ -86,83 +106,91 @@ function renderIssues(status = 'all', searchStr = '') {
 
         document.getElementById('total-count').innerText = `${filtered.length} Issues`;
 
-      // renderIssues ফাংশনের ভেতরে এই অংশটি পরিবর্তন করুন
-filtered.forEach(issue => {
-    const topBorder = issue.status === 'open' ? 'border-[#10B981]' : 'border-[#8B5CF6]';
-    
-    // পাথ হিসেবে 'assets/' যোগ করা হয়েছে
-    // আপনার ফাইল নেম অনুযায়ী স্পেসসহ পাথ দেওয়া হলো:
-    const statusIcon = issue.status === 'open' ? 'assets/Open-Status.png' : 'assets/Closed-Status.png';
-    
-    const card = document.createElement('div');
-    card.className = `bg-white border-t-4 ${topBorder} rounded-2xl shadow-sm p-6 flex flex-col justify-between hover:shadow-xl transition-all duration-300 cursor-pointer`;
-    card.onclick = () => openModal(issue.id);
-    
-    card.innerHTML = `
-        <div>
-            <div class="flex justify-between items-center mb-4">
-                <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center border border-gray-100">
-                    <img src="${statusIcon}" alt="${issue.status}" class="w-4 h-4 object-contain" onerror="this.src='https://via.placeholder.com/16'">
+        filtered.forEach(issue => {
+            const topBorder = issue.status === 'open' ? 'border-[#10B981]' : 'border-[#8B5CF6]';
+            const statusIcon = issue.status === 'open' ? 'assets/Open-Status.png' : 'assets/Closed-Status.png';
+            
+            const priorityClass = getPriorityStyle(issue.priority);
+            
+            const labelHtml = issue.labels.map(l => {
+                const labelClass = getLabelStyle(l);
+                return `<span class="${labelClass} text-[9px] px-2 py-0.5 rounded-full border mr-1 uppercase font-bold tracking-tight">
+                            <i class="fa-solid fa-tag mr-1 opacity-70"></i>${l}
+                        </span>`;
+            }).join('');
+            
+            const card = document.createElement('div');
+            card.className = `bg-white border-t-4 ${topBorder} rounded-xl shadow-sm p-5 flex flex-col justify-between hover:shadow-md transition-all cursor-pointer group`;
+            card.onclick = () => openModal(issue.id);
+            
+            card.innerHTML = `
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="w-7 h-7 rounded-full bg-gray-50 flex items-center justify-center border border-gray-100 shadow-inner">
+                            <img src="${statusIcon}" alt="status" class="w-3.5 h-3.5 object-contain">
+                        </div>
+                        <span class="${priorityClass} text-[9px] px-2.5 py-1 rounded font-black uppercase tracking-widest border shadow-sm">${issue.priority}</span>
+                    </div>
+                    <h3 class="font-bold text-[#111827] text-sm mb-1 leading-snug group-hover:text-[#4F46E5] transition-colors line-clamp-2">${issue.title}</h3>
+                    <p class="text-[11px] text-gray-500 line-clamp-2 mb-4 leading-relaxed">${issue.description}</p>
+                    <div class="flex flex-wrap gap-y-1 mb-2">${labelHtml}</div>
                 </div>
-                <span class="bg-gray-100 text-gray-500 text-[9px] px-2.5 py-1 rounded-md font-black uppercase tracking-widest border border-gray-200">${issue.priority}</span>
-            </div>
-            <h3 class="font-bold text-[#111827] text-[15px] mb-2 line-clamp-2">${issue.title}</h3>
-            <p class="text-xs text-gray-500 line-clamp-2 mb-5">${issue.description}</p>
-        </div>
-        <div class="mt-6 pt-4 border-t border-gray-50 flex justify-between items-center text-[11px] text-gray-400">
-            <span>#${issue.id} by <b class="text-gray-600">${issue.author}</b></span>
-            <span>${new Date(issue.createdAt).toLocaleDateString()}</span>
-        </div>
-    `;
-    grid.appendChild(card);
-});
-    }, 600);
+                
+                <div class="mt-4 pt-3 border-t border-gray-50 flex flex-col gap-0.5 text-[10px] font-medium">
+                    <span class="text-gray-500">#${issue.id} by <b class="text-gray-700">${issue.author}</b></span>
+                    <span class="text-gray-400">${new Date(issue.createdAt).toLocaleDateString('en-US')}</span>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }, 400);
 }
 
-// --- Tab Controls ---
+// --- ফিল্টার এবং সার্চ ---
 function filterIssues(status) {
-    activeFilter = status;
+    currentFilter = status;
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active-tab'));
     document.getElementById(`tab-${status}`).classList.add('active-tab');
     renderIssues(status, document.getElementById('search-input').value);
 }
 
-// --- Search ---
 document.getElementById('search-input').addEventListener('input', (e) => {
-    renderIssues(activeFilter, e.target.value);
+    renderIssues(currentFilter, e.target.value);
 });
 
-// --- Modal ---
+// --- মডাল (Popup) ওপেন ---
 function openModal(id) {
     const issue = issuesData.find(i => i.id === id);
     const body = document.getElementById('modal-body');
+    const priorityClass = getPriorityStyle(issue.priority);
     
     body.innerHTML = `
-        <h2 class="text-xl font-bold text-gray-900 mb-3">${issue.title}</h2>
-        <div class="flex flex-wrap gap-2 mb-5">
-            <span class="bg-indigo-50 text-indigo-700 text-[10px] px-2 py-1 rounded font-bold uppercase border border-indigo-100">Status: ${issue.status}</span>
-            <span class="bg-orange-50 text-orange-700 text-[10px] px-2 py-1 rounded font-bold uppercase border border-orange-100">Priority: ${issue.priority}</span>
-        </div>
-        <div class="bg-gray-50 p-4 rounded-lg mb-5">
-            <h4 class="text-xs font-bold text-gray-400 uppercase mb-2">Description</h4>
-            <p class="text-gray-700 text-sm leading-relaxed">${issue.description}</p>
-        </div>
-        <div class="grid grid-cols-2 gap-4 text-xs">
-            <div class="border-l-2 border-indigo-500 pl-3">
-                <p class="text-gray-400 uppercase font-bold mb-1">Author</p>
-                <p class="font-semibold text-gray-800">${issue.author}</p>
+        <div class="text-left">
+            <h2 class="text-xl font-bold text-gray-900 mb-2">${issue.title}</h2>
+            <div class="flex items-center gap-2 mb-4">
+                <span class="${issue.status === 'open' ? 'bg-[#10B981]' : 'bg-[#8B5CF6]'} text-white text-[10px] px-2.5 py-1 rounded-full font-bold">
+                    ${issue.status === 'open' ? 'Opened' : 'Closed'}
+                </span>
+                <span class="text-gray-400 text-[11px]">• Opened by <b class="text-gray-600">${issue.author}</b> • ${new Date(issue.createdAt).toLocaleDateString('en-US')}</span>
             </div>
-            <div class="border-l-2 border-slate-300 pl-3">
-                <p class="text-gray-400 uppercase font-bold mb-1">Assignee</p>
-                <p class="font-semibold text-gray-800">${issue.assignee || 'Not Assigned'}</p>
+            
+            <div class="flex flex-wrap gap-2 py-3 border-y border-gray-100 mb-4">
+                ${issue.labels.map(l => `<span class="${getLabelStyle(l)} text-[9px] px-2.5 py-1 rounded-full border font-bold uppercase"># ${l}</span>`).join('')}
             </div>
-            <div class="border-l-2 border-slate-300 pl-3">
-                <p class="text-gray-400 uppercase font-bold mb-1">Labels</p>
-                <p class="font-semibold text-gray-800">${issue.labels.join(', ')}</p>
-            </div>
-            <div class="border-l-2 border-slate-300 pl-3">
-                <p class="text-gray-400 uppercase font-bold mb-1">Date Created</p>
-                <p class="font-semibold text-gray-800">${new Date(issue.createdAt).toLocaleDateString()}</p>
+
+            <p class="text-gray-600 text-sm mb-6 leading-relaxed bg-gray-50 p-4 rounded-xl border border-gray-100">
+                ${issue.description}
+            </p>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <p class="text-[9px] text-gray-400 uppercase font-bold mb-1">Assignee</p>
+                    <p class="font-bold text-gray-800 text-sm">${issue.assignee || 'Unassigned'}</p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <p class="text-[9px] text-gray-400 uppercase font-bold mb-1">Priority</p>
+                    <span class="${priorityClass} text-[9px] px-2 py-0.5 rounded font-black uppercase border shadow-sm">${issue.priority}</span>
+                </div>
             </div>
         </div>
     `;
