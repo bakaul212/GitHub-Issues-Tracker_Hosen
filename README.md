@@ -20,4 +20,10 @@ These are three different ways to handle a list of items:
 
  3.3 filter(): This is the "security guard." It looks at your list and checks each item against a rule. If the item passes, it goes into a new list. If it doesn't, it gets left behind.
 
- 
+4. Arrow Functions
+
+In the past, writing a function required a specific, somewhat wordy structure. Arrow functions are a "shorthand" version. They use a symbol that looks like an arrow to separate the input from the result. They are popular not just because they are shorter to type, but because they handle the "context" (the connection to the surrounding code) more predictably than traditional functions.
+
+5. Template Literals
+
+Before these existed, joining text and variables together was like a puzzle involving many plus signs and quote marks. Template literals use backticks instead of standard quotes. They allow you to write text naturally and "plug in" your variables directly into the sentence. They also allow you to hit "Enter" and create text on a new line without the code breaking.
