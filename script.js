@@ -1,4 +1,3 @@
-// সম্পূর্ণ ৫০টি ইস্যু ডেটা
 const issuesData = [
     { "id": 1, "title": "Fix navigation menu on mobile devices", "description": "The navigation menu doesn't collapse properly on mobile devices. Need to fix the responsive behavior.", "status": "open", "labels": ["bug", "help wanted"], "priority": "high", "author": "john_doe", "assignee": "jane_smith", "createdAt": "2024-01-15T10:30:00Z" },
     { "id": 2, "title": "Add dark mode support", "description": "Users are requesting a dark mode option. This would improve accessibility and user experience.", "status": "open", "labels": ["enhancement", "good first issue"], "priority": "medium", "author": "sarah_dev", "assignee": "", "createdAt": "2024-01-14T14:20:00Z" },
@@ -54,25 +53,22 @@ const issuesData = [
 
 let currentFilter = 'all';
 
-// --- অগ্রাধিকার (Priority) অনুযায়ী কালার স্টাইল ---
 function getPriorityStyle(priority) {
     const p = priority.toLowerCase();
-    if (p === 'high') return 'bg-[#FEE2E2] text-[#EF4444] border-[#FECACA]'; // লাল
-    if (p === 'medium') return 'bg-[#FFEDD5] text-[#F97316] border-[#FED7AA]'; // কমলা
-    if (p === 'low') return 'bg-[#F3F4F6] text-[#6B7280] border-[#E5E7EB]'; // ধূসর
+    if (p === 'high') return 'bg-[#FEE2E2] text-[#EF4444] border-[#FECACA]';
+    if (p === 'medium') return 'bg-[#FFEDD5] text-[#F97316] border-[#FED7AA]';
+    if (p === 'low') return 'bg-[#F3F4F6] text-[#6B7280] border-[#E5E7EB]';
     return 'bg-gray-100 text-gray-500 border-gray-200';
 }
 
-// --- লেবেল (BUG, HELP WANTED) অনুযায়ী কালার স্টাইল ---
 function getLabelStyle(label) {
     const l = label.toUpperCase();
-    if (l === 'BUG') return 'bg-[#FEE2E2] text-[#E11D48] border-[#FECACA]'; // গাঢ় লাল
-    if (l === 'HELP WANTED') return 'bg-[#FEF3C7] text-[#D97706] border-[#FDE68A]'; // হলুদ
-    if (l === 'ENHANCEMENT') return 'bg-[#ECFDF5] text-[#059669] border-[#A7F3D0]'; // সবুজ
+    if (l === 'BUG') return 'bg-[#FEE2E2] text-[#E11D48] border-[#FECACA]';
+    if (l === 'HELP WANTED') return 'bg-[#FEF3C7] text-[#D97706] border-[#FDE68A]';
+    if (l === 'ENHANCEMENT') return 'bg-[#ECFDF5] text-[#059669] border-[#A7F3D0]';
     return 'bg-gray-50 text-gray-500 border-gray-100';
 }
 
-// --- লগইন হ্যান্ডলার ---
 document.getElementById('login-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const user = document.getElementById('username').value;
@@ -87,7 +83,6 @@ document.getElementById('login-form').addEventListener('submit', (e) => {
     }
 });
 
-// --- ড্যাশবোর্ড রেন্ডারিং ---
 function renderIssues(status = 'all', searchStr = '') {
     const grid = document.getElementById('issues-grid');
     const loader = document.getElementById('loader');
@@ -109,7 +104,6 @@ function renderIssues(status = 'all', searchStr = '') {
         filtered.forEach(issue => {
             const topBorder = issue.status === 'open' ? 'border-[#10B981]' : 'border-[#8B5CF6]';
             const statusIcon = issue.status === 'open' ? 'assets/Open-Status.png' : 'assets/Closed-Status.png';
-            
             const priorityClass = getPriorityStyle(issue.priority);
             
             const labelHtml = issue.labels.map(l => {
@@ -146,7 +140,6 @@ function renderIssues(status = 'all', searchStr = '') {
     }, 400);
 }
 
-// --- ফিল্টার এবং সার্চ ---
 function filterIssues(status) {
     currentFilter = status;
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active-tab'));
@@ -158,7 +151,6 @@ document.getElementById('search-input').addEventListener('input', (e) => {
     renderIssues(currentFilter, e.target.value);
 });
 
-// --- মডাল (Popup) ওপেন ---
 function openModal(id) {
     const issue = issuesData.find(i => i.id === id);
     const body = document.getElementById('modal-body');
